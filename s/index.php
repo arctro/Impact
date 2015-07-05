@@ -409,13 +409,13 @@
 						cgCount[sortedSelectedData[i]["category"]]+=parseFloat(sortedSelectedData[i]["power"])*sortedSelectedData[i]["time"];
 					}
 				}
-				radar["datasets"][0]["data"][0]=(getCE(cgCount["ac"])/radarActual["ac"])*100;
-				radar["datasets"][0]["data"][1]=(getCE(cgCount["cd"])/radarActual["cd"])*100;
-				radar["datasets"][0]["data"][2]=(getCE(cgCount["cw"])/radarActual["cw"])*100;
-				radar["datasets"][0]["data"][3]=(getCE(cgCount["dw"])/radarActual["dw"])*100;
-				radar["datasets"][0]["data"][4]=(getCE(cgCount["ff"])/radarActual["ff"])*100;
-				radar["datasets"][0]["data"][5]=(getCE(cgCount["mo"])/radarActual["mo"])*100;
-				radar["datasets"][0]["data"][6]=(getCE(cgCount["tv"])/radarActual["tv"])*100;
+				radar["datasets"][0]["data"][0]=((((getCE(cgCount["ac"])/radarActual["ac"])*100)>300) ? 300 : (getCE(cgCount["ac"])/radarActual["ac"])*100);
+				radar["datasets"][0]["data"][1]=((((getCE(cgCount["cd"])/radarActual["cd"])*100)>300) ? 300 : (getCE(cgCount["cd"])/radarActual["cd"])*100);
+				radar["datasets"][0]["data"][2]=((((getCE(cgCount["cw"])/radarActual["cw"])*100)>300) ? 300 : (getCE(cgCount["cw"])/radarActual["cw"])*100);
+				radar["datasets"][0]["data"][3]=((((getCE(cgCount["dw"])/radarActual["dw"])*100)>300) ? 300 : (getCE(cgCount["dw"])/radarActual["dw"])*100);
+				radar["datasets"][0]["data"][4]=((((getCE(cgCount["ff"])/radarActual["ff"])*100)>300) ? 300 : (getCE(cgCount["ff"])/radarActual["ff"])*100);
+				radar["datasets"][0]["data"][5]=((((getCE(cgCount["mo"])/radarActual["mo"])*100)>300) ? 300 : (getCE(cgCount["mo"])/radarActual["mo"])*100);
+				radar["datasets"][0]["data"][6]=((((getCE(cgCount["tv"])/radarActual["tv"])*100)>300) ? 300 : (getCE(cgCount["tv"])/radarActual["tv"])*100);
 				
 				$("#radar-averagecompare").html("");
 				var ctx = document.getElementById("radar-averagecompare").getContext("2d");
@@ -441,13 +441,23 @@
 					mo:0,
 					tv:0
 				}
+				var energyHours={
+					ac:0,
+					cd:0,
+					cw:0,
+					dw:0,
+					ff:0,
+					mo:0,
+					tv:0
+				}
 				for(var i=0;i<sortedSelectedData.length;i++){
 					energyCount[selectedData[i]["category"]]++;
+					energyHours[selectedData[i]["category"]]+=selectedData[i]["time"];
 				}
 				var totalOptimal=0;
 				var optimalEnergyPredictions=energyPredictions.slice();
 				for(var i=0;i<Object.keys(optimal).length;i++){
-					totalOptimal+=energyCount[Object.keys(energyCount)[i]]*optimal[Object.keys(energyCount)[i]]['power'];
+					totalOptimal+=energyCount[Object.keys(energyCount)[i]]*optimal[Object.keys(energyCount)[i]]['power']*energyHours[Object.keys(energyCount)[i]];
 				}
 				for(var i=0;i<optimalEnergyPredictions.length;i++){
 					optimalEnergyPredictions[i]=optimalEnergyPredictions[i]*totalOptimal;
@@ -559,17 +569,13 @@
 			<div class="color-g" style="background-image:url(../resources/patterns/fancypants.jpg);height:33px;">
 				<ul class="center-content-h menu" style="font-size:25px;height:99%;">
 					<li style="margin-left:0px" onclick="redirectTo('http://arctro.com/impact')">Home</li>
-					<li onclick="scrollTo('#about')">About</li>
+					<li onclick="redirectTo('http://arctro.com/impact/team#about')">About</li>
 					<li onclick="scrollTo('#calculate')">Calculate</li>
 					<li onclick="scrollTo('#results')">Results</li>
 					<li onclick="compareWindow()">Compare</li>
 					<li id="red-highlight" onclick="deleteDataRequest()">Delete</li>
 				</ul>
 			</div>
-		</div>
-		<div class="content shadow-card" id="about">
-			<h1>About</h1>
-			<p>Impact helps measure, analyse and compare carbon emmissions for household devices.</p>
 		</div>
 		<div class="content shadow-card" id="calculate">
 			<h1>Calculate</h1>
@@ -664,7 +670,7 @@
 									</table>
 								</td>
 								<td valign="top">
-									This graph shows the predicted running cost of your devices compared to households using the most energy efficient devices.<br/>
+									This graph shows the predicted running cost of your devices compared to households using the most energy efficient devices as suggested in the table below.<br/>
 									<table style="" class="outline fill-wb">
 										<tr style="font-weight:bold">
 											<td>Category</td>

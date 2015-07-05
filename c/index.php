@@ -1,3 +1,4 @@
+
 <html>
 	<head>
 		<title>Impact</title>
@@ -88,7 +89,7 @@
 					highlight:"E5C7EA"
 				}
 			};
-			
+
 			var optimal={
 				ac:{
 					model:"KFR-23GW",
@@ -133,9 +134,9 @@
 					power:"0.0331"
 				}
 			};
-			
+
 			var radarActual={ac:getCE(7,false), cd:getCE(1,false), cw:getCE(1,false), dw:getCE(1,false), ff:getCE(79,false), mo:getCE(3,false), tv:getCE(3,false)};
-			
+
 			var radar1 = {
 			    labels: ["Air Conditioner", "Clothes Dryers", "Clothes Washers", "Dishwashers", "Fridges/Freezers", "Monitors", "Television"],
 			    datasets: [
@@ -186,9 +187,9 @@
 			        }
 			    ]
 			};
-			
+
 			var energyPredictions = [70.2, 67.2, 67.1, 66.4, 65.7, 65.2, 64.3, 64.3, 63.2, 63.3, 63.9, 62.6, 63.3, 63.6, 64.3, 65.4, 65.5, 64.7, 66, 66.4, 67.8, 68.1];
-			
+
 			var lineEnergy1 = {
 			    labels: ["2015", "2016", "2017", "2018", "2019", "2020", "2021", "2022", "2023", "2024", "2025", "2026", "2027", "2028", "2029", "2030", "2031", "2032", "2033", "2034", "2035"],
 			    datasets: [
@@ -239,31 +240,58 @@
 			        }
 			    ]
 			};
-			
+
+			var categoryCompareData = {
+				labels: ["Air Conditioner", "Clothes Dryers", "Clothes Washers", "Dishwashers", "Fridges/Freezers", "Monitors", "Television"],
+				datasets: [
+						{
+								label: "Your average energy use by category",
+								fillColor: "rgba(200,236,219,0.2)",
+								strokeColor: "#9AD6B9",
+								pointColor: "#9AD6B9",
+								pointStrokeColor: "#fff",
+								pointHighlightFill: "#fff",
+								pointHighlightStroke: "rgba(220,220,220,1)",
+								data: [0, 0, 0, 0, 0, 0, 0]
+						},
+						{
+								label: "Population average energy use by category",
+								fillColor: "rgba(199,221,232,0.2)",
+								strokeColor: "#97BBCD",
+								pointColor: "#97BBCD",
+								pointStrokeColor: "#fff",
+								pointHighlightFill: "#fff",
+								pointHighlightStroke: "rgba(151,187,205,1)",
+								data: [100,100,100,100,100,100,100]
+						}
+				]
+			};
+
+
 			var pieUseageMakeup=[]
-			
+
 			var cg="";
 			var br="";
 			var mo="";
 			var moData="";
 			var data={ac:[],cd:[],cw:[],dw:[],ff:[],mo:[]};
 			var victoria=false;
-			
+
 			var selectedData1=[];
 			var selectedData2=[];
-			
+
 			var compareRadar1;
 			var comparePie1;
 			var compareLine1;
-			
+
 			var compareRadar2;
 			var comparePie2;
 			var compareLine2;
-			
+
 			function getDataName(category,name){
 				return key[category][name];
 			}
-			
+
 			function titleString(string){
 				if(typeof string !== 'string'){
 					return string;
@@ -278,22 +306,22 @@
 				}
 				return words.join(" ");
 			}
-			
+
 			String.prototype.capitalizeFirstLetter = function() {
 			    return this.charAt(0).toUpperCase() + this.slice(1);
 			}
-			
+
 			function kwhToKw(kwh,hours){
 				return kwh/hours;
 			}
-			
+
 			function sortByKey(array, key) {
 				return array.sort(function(a, b) {
 					var x = a[key]; var y = b[key];
 					return ((x < y) ? -1 : ((x > y) ? 1 : 0));
 				});
 			}
-			
+
 			function getCE(num,usevic){
 				if (typeof usevic === 'undefined') { usevic = victoria; }
 				if(usevic){
@@ -302,14 +330,14 @@
 					return num*865;
 				}
 			}
-			
+
 			function safeDivide(num,divide){
 				if(divide==0||num==0){
 					return 0;
 				}
 				return num/divide;
 			}
-			
+
 			function generateStars(rating,outof,shownum,size){
 				if(typeof rating !== 'float'||typeof rating !== 'int'){
 					rating=parseFloat(rating);
@@ -335,7 +363,7 @@
 				}
 				return returnHTML+"</span>";
 			}
-			
+
 			function guid() {
 			  function s4() {
 			    return Math.floor((1 + Math.random()) * 0x10000)
@@ -345,26 +373,19 @@
 			  return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
 			    s4() + '-' + s4() + s4() + s4();
 			}
-			
+
 			$(document).ready(function(){
 				var cw = $('.s-equal').width();
 				$('.s-equal').css({'height':cw+'px'});
 				var cw = $('.s-half').width();
 				$('.s-half').css({'height':(cw/2)+'px'});
-				
+
 				var ctx = document.getElementById("radar-averagecompare1").getContext("2d");
 				compareRadar1 = new Chart(ctx).Radar(radar1);
-				
-				var ctx = document.getElementById("line-price1").getContext("2d");
-				var myLineChart1 = new Chart(ctx).Line(lineEnergy1);
-				
+
 				var ctx = document.getElementById("radar-averagecompare2").getContext("2d");
 				compareRadar2 = new Chart(ctx).Radar(radar2);
-				
-				var ctx = document.getElementById("line-price2").getContext("2d");
-				var myLineChart2 = new Chart(ctx).Line(lineEnergy2);
 				//var myBarChart = new Chart(ctx).Bar(bar);
-				console.log("/impact/api?request=LOAD_DATA&access_id=<?php echo $_GET['id1']; ?>");
 				$.ajax({
 					url: "/impact/api?request=LOAD_DATA&access_id=<?php echo $_GET['id1']; ?>",
 					success: function(result) {
@@ -400,7 +421,7 @@
 					}
 				});
 			});
-			
+
 			function generateGraphs(){
 				var sortedSelectedData1=sortByKey(selectedData1,"category");
 				var piedata1=[];
@@ -418,7 +439,7 @@
 				var ctx = document.getElementById("pie-useagemakeup1").getContext("2d");
 				ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 				comparePie1 = new Chart(ctx).Pie(piedata1);
-				
+
 				var cgCount1={
 					ac:0,
 					cd:0,
@@ -440,14 +461,22 @@
 				radar1["datasets"][0]["data"][4]=(getCE(cgCount1["ff"])/radarActual["ff"])*100;
 				radar1["datasets"][0]["data"][5]=(getCE(cgCount1["mo"])/radarActual["mo"])*100;
 				radar1["datasets"][0]["data"][6]=(getCE(cgCount1["tv"])/radarActual["tv"])*100;
-				
+
 				$("#radar-averagecompare1").html("");
 				var ctx = document.getElementById("radar-averagecompare1").getContext("2d");
 				ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 				compareRadar1 = new Chart(ctx).Radar(radar1);
-				
+
+				categoryCompareData["datasets"][0]["data"][0]=getCE(cgCount1["ac"]);
+				categoryCompareData["datasets"][0]["data"][1]=getCE(cgCount1["cd"]);
+				categoryCompareData["datasets"][0]["data"][2]=getCE(cgCount1["cw"]);
+				categoryCompareData["datasets"][0]["data"][3]=getCE(cgCount1["dw"]);
+				categoryCompareData["datasets"][0]["data"][4]=getCE(cgCount1["ff"]);
+				categoryCompareData["datasets"][0]["data"][5]=getCE(cgCount1["mo"]);
+				categoryCompareData["datasets"][0]["data"][6]=getCE(cgCount1["tv"]);
+
 				var total=0;
-				
+
 				for(var i=0;i<sortedSelectedData1.length;i++){
 					total+=parseFloat(sortedSelectedData1[i]["power"])*sortedSelectedData1[i]["time"];
 				}
@@ -455,7 +484,7 @@
 				for(var i=0;i<currentEnergyPredictions1.length;i++){
 					currentEnergyPredictions1[i]=currentEnergyPredictions1[i]*total;
 				}
-				
+
 				var energyCount1={
 					ac:0,
 					cd:0,
@@ -476,19 +505,11 @@
 				for(var i=0;i<optimalEnergyPredictions1.length;i++){
 					optimalEnergyPredictions1[i]=optimalEnergyPredictions1[i]*totalOptimal1;
 				}
-				
+
 				lineEnergy1['datasets'][0]['data']=currentEnergyPredictions1;
 				lineEnergy1['datasets'][1]['data']=optimalEnergyPredictions1;
-				
-				$("#line-price").html("");
-				var ctx = document.getElementById("line-price1").getContext("2d");
-				ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-				compareLine1 = new Chart(ctx).Line(lineEnergy1);
-				
-				
-				
-				
-				
+
+
 				var sortedSelectedData2=sortByKey(selectedData2,"category");
 				var piedata2=[];
 				for(var i=0;i<sortedSelectedData2.length;i++){
@@ -505,7 +526,7 @@
 				var ctx = document.getElementById("pie-useagemakeup2").getContext("2d");
 				ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 				comparePie2 = new Chart(ctx).Pie(piedata2);
-				
+
 				var cgCount2={
 					ac:0,
 					cd:0,
@@ -527,14 +548,25 @@
 				radar2["datasets"][0]["data"][4]=(getCE(cgCount2["ff"])/radarActual["ff"])*100;
 				radar2["datasets"][0]["data"][5]=(getCE(cgCount2["mo"])/radarActual["mo"])*100;
 				radar2["datasets"][0]["data"][6]=(getCE(cgCount2["tv"])/radarActual["tv"])*100;
-				
+
 				$("#radar-averagecompare2").html("");
 				var ctx = document.getElementById("radar-averagecompare2").getContext("2d");
 				ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 				compareRadar2 = new Chart(ctx).Radar(radar2);
-				
+
+				categoryCompareData["datasets"][1]["data"][0]=getCE(cgCount2["ac"]);
+				categoryCompareData["datasets"][1]["data"][1]=getCE(cgCount2["cd"]);
+				categoryCompareData["datasets"][1]["data"][2]=getCE(cgCount2["cw"]);
+				categoryCompareData["datasets"][1]["data"][3]=getCE(cgCount2["dw"]);
+				categoryCompareData["datasets"][1]["data"][4]=getCE(cgCount2["ff"]);
+				categoryCompareData["datasets"][1]["data"][5]=getCE(cgCount2["mo"]);
+				categoryCompareData["datasets"][1]["data"][6]=getCE(cgCount2["tv"]);
+
+				var ctx = document.getElementById("category-compare").getContext("2d");
+				var categoryCompare = new Chart(ctx).Bar(categoryCompareData);
+
 				var total=0;
-				
+
 				for(var i=0;i<sortedSelectedData2.length;i++){
 					total+=parseFloat(sortedSelectedData2[i]["power"])*sortedSelectedData2[i]["time"];
 				}
@@ -542,7 +574,7 @@
 				for(var i=0;i<currentEnergyPredictions2.length;i++){
 					currentEnergyPredictions2[i]=currentEnergyPredictions2[i]*total;
 				}
-				
+
 				var energyCount2={
 					ac:0,
 					cd:0,
@@ -563,16 +595,10 @@
 				for(var i=0;i<optimalEnergyPredictions2.length;i++){
 					optimalEnergyPredictions2[i]=optimalEnergyPredictions2[i]*totalOptimal2;
 				}
-				
+
 				lineEnergy2['datasets'][0]['data']=currentEnergyPredictions2;
 				lineEnergy2['datasets'][1]['data']=optimalEnergyPredictions2;
-				
-				$("#line-price").html("");
-				var ctx = document.getElementById("line-price2").getContext("2d");
-				ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-				compareLine2 = new Chart(ctx).Line(lineEnergy2);
 			}
-			
 			function toggleData(id){
 				for(var i=0;i<selectedData.length;i++){
 					console.log(id + " " + selectedData[i]['id']);
@@ -586,7 +612,7 @@
 					}
 				}
 			}
-			
+
 			function cgToCatagory(cg){
 				if(cg=="ac"){
 					return "Air Conditioner";
@@ -611,7 +637,7 @@
 				}
 				return cg;
 			}
-			
+
 			function scrollTo(elementid){
 				$('html, body').animate({
                 	scrollTop: $(elementid).offset().top
@@ -625,7 +651,7 @@
 			function redirectTo(url){
 				window.location=url;
 			}
-			
+
 			function deleteDataRequest(){
 				var deleteCode="";
 				$("#sd-back").css("display","block");
@@ -636,7 +662,7 @@
 			}
 			function deleteData(deleteCode){
 				$.ajax({
-					url: "/impact/api?request=DELETE_DATA&access_id=<?php echo $_GET['access_id']; ?>&delete_code="+$("#delete-code").val(),
+					url: "/impact/api?request=DELETE_DATA&access_id=&delete_code="+$("#delete-code").val(),
 					success: function(result) {
 						redirectTo("http://arctro.com/impact")
 					}
@@ -647,7 +673,7 @@
 	<body>
 		<div id="save-dialog" class="center shadow-menu" style="width:250px;background-color:#FFFFFF;position:fixed;z-index:10;display:none;">
 			<div id="sd-container" class="" style="padding:10px;width:calc(100% - 20px)">
-				
+
 			</div>
 		</div>
 		<div id="sd-back" class="fill-wb fill-hb" style="position:fixed;background-color:#151515;opacity:0.5;display:none;z-index:9;" onclick="closeSD()"></div>
@@ -658,19 +684,20 @@
 			<div class="color-g" style="background-image:url(../resources/patterns/fancypants.jpg);height:33px;">
 				<ul class="center-content-h menu" style="font-size:25px;height:99%;">
 					<li style="margin-left:0px" onclick="redirectTo('http://arctro.com/impact')">Home</li>
-					<li onclick="scrollTo('#about')">About</li>
+					<li onclick="redirectTo('http://arctro.com/impact/team#about')">About</li>
 					<li onclick="scrollTo('#calculate')">Calculate</li>
 					<li onclick="scrollTo('#results')">Results</li>
 				</ul>
 			</div>
 		</div>
-		<div class="content shadow-card" id="about">
-			<h1>About</h1>
-			<p>Impact helps measure, analyse and compare carbon emmissions for household devices.</p>
-		</div>
 		<div class="content shadow-card" id="calculate">
 			<h1>Calculate</h1>
 			<table class="outline fill-wb" id="data-table1">
+				<tr>
+					<td colspan="8">
+						Results 1
+					</td>
+				</tr>
 				<tr class="t-ac">
 					<td><b>Enabled</b></td>
 					<td><b>Category</b></td>
@@ -684,6 +711,11 @@
 			</table>
 			<br/>
 			<table class="outline fill-wb" id="data-table2">
+				<tr>
+					<td colspan="8">
+						Results 2
+					</td>
+				</tr>
 				<tr class="t-ac">
 					<td><b>Enabled</b></td>
 					<td><b>Category</b></td>
@@ -704,6 +736,7 @@
 				</tr>
 				<tr>
 					<td style="width:calc(50% - 75px)">
+						<h2 style="text-align:center">Results 1</h2>
 						<canvas id="pie-useagemakeup1" class="s-half fill-wb"></canvas>
 					</td>
 					<td valign="top" style="width:150px">
@@ -718,6 +751,7 @@
 						</table>
 					</td>
 					<td style="width:calc(50% - 75px)">
+						<h2 style="text-align:center">Results 2</h2>
 						<canvas id="pie-useagemakeup2" class="s-half fill-wb"></canvas>
 					</td>
 				</tr>
@@ -728,6 +762,7 @@
 				</tr>
 				<tr>
 					<td style="width:calc(50% - 75px)">
+						<h2 style="text-align:center">Results 1</h2>
 						<canvas id="radar-averagecompare1" class="s-half fill-wb"></canvas>
 					</td>
 					<td valign="top" style="width:150px">
@@ -737,26 +772,33 @@
 						</table>
 					</td>
 					<td style="width:calc(50% - 75px)">
+						<h2 style="text-align:center">Results 2</h2>
 						<canvas id="radar-averagecompare2" class="s-half fill-wb"></canvas>
 					</td>
 				</tr>
 			</table>
 			<table style="width:100%;">
-				<tr colspan="3">
-					<h2>Energy price predictions (Cents per Day)</h2>
+				<tr colspan="2">
+					<h2>Carbon Comparison</h2>
 				</tr>
 				<tr>
-					<td style="width:calc(50% - 75px)">
-						<canvas id="line-price1" class="s-half fill-wb"></canvas>
+					<td class="fill-wh">
+						<canvas id="category-compare" class="s-half fill-wb"></canvas>
 					</td>
-					<td valign="top" style="width:150px;">
+					<td valign="top">
 						<table>
-							<tr><td><div style="display:inline-block;background-color:#97BBCD;width:20px;height:20px;"></div></td><td> Your predicted daily cost</td></tr>
-							<tr><td><div style="display:inline-block;background-color:#9AD6B9;width:20px;height:20px;"></div></td><td> Optimum predicted daily cost</td></tr>
+							<tr>
+								<td valign="top" style="width:150px;">
+									<table>
+										<tr><td><div style="display:inline-block;background-color:#9AD6B9;width:20px;height:20px;"></div></td><td> Results 1</td></tr>
+										<tr><td><div style="display:inline-block;background-color:#97BBCD;width:20px;height:20px;"></div></td><td> Results 2</td></tr>
+									</table>
+								</td>
+								<td valign="top">
+									This graph shows a comparison of the carbon emissions of results 1 and 2. This graph show the progress and difference between the two results.
+								</td>
+							</tr>
 						</table>
-					</td>
-					<td style="width:calc(50% - 75px)">
-						<canvas id="line-price2" class="s-half fill-wb"></canvas>
 					</td>
 				</tr>
 			</table>
