@@ -43,7 +43,7 @@
           <td><img src="../resources/team/ben.jpg" alt="" style="height:300px;border-radius:100%;"/></td>
           <td valign="top">
             <h1 style="text-align:center;">Ben</h1>
-            Ben has been competiting hackathons since 2014 and programming since 2008. He has entered competitions such as:
+            Ben has entered competitions such as:
             <ul>
               <li>Govhack 2014</li>
               <li>YICTE 2014</li>
@@ -58,7 +58,7 @@
           <td><img src="../resources/team/jon.jpg" alt="" style="height:300px;border-radius:100%;"/></td>
           <td valign="top">
             <h1 style="text-align:center;">Jon</h1>
-            Jon has been competiting in hackathons since the end of 2014 and programming since 2010.
+            Jon has entered competitions such as:
               <ul>
                 <li>HACT.IO 2014</li>
                 <li>hs.hact.io 2015</li>

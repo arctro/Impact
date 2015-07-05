@@ -384,7 +384,7 @@
 								var brands=getBrands(data,cg);
 								console.log(brands);
 								
-								$("#brand").append("<option value=''>None</option>");
+								$("#brand").append("<option value=''>Select a Brand</option>");
 								for(var i=0;i<brands.length;i++){
 									$("#brand").append("<option value='"+brands[i]+"'>"+titleString(brands[i])+"</option>");
 									$("#brand").css("display","block")
@@ -401,7 +401,7 @@
 						var brands=getBrands(data,cg);
 						console.log(brands);
 						
-						$("#brand").append("<option value=''>Select</option>");
+						$("#brand").append("<option value=''>Select a Brand</option>");
 						for(var i=0;i<brands.length;i++){
 							$("#brand").append("<option value='"+brands[i]+"'>"+titleString(brands[i])+"</option>");
 							$("#brand").css("display","block")
@@ -417,7 +417,7 @@
 					console.log(br);
 					var models=getProducts(data,br);
 					
-					$("#model").append("<option value=''>Select</option>");
+					$("#model").append("<option value=''>Select a Model</option>");
 					for(var i=0;i<models.length;i++){
 						$("#model").append("<option value='"+models[i][getDataName(cg,"model")]+"'>"+titleString(models[i][getDataName(cg,"model")])+"</option>");
 						$("#model").css("display","block")
@@ -590,7 +590,7 @@
 			
 			function saveData(){
 				if(selectedData==[]){
-					return;
+					return false;
 				}
 				$("#save-dialog").css("display","block");
 				$("#save-button").css("display","none");
@@ -646,6 +646,44 @@
 				}
 				return cg;
 			}
+			function compareWindow(){
+				$("#sd-back").css("display","block");
+				$("#save-dialog").css("display","block");
+				$("#sd-container").html("<h1>Compare Data</h1><p>Enter an access code:</p><input type='text' id='access-code' class='fill-wb' value=''/><p>Enter another access code:</p><input type='text' id='access-code-2' class='fill-wb' value=''/><br/>or");
+				$("#save-dialog").append("<div class='' style='padding:20px;background-color:#B0E7A7;color:#FFFFFF;text-align:center;width:calc(100% - 40px);' onclick='compareSet()'>Compare to This</div><br/>");
+				$("#save-dialog").append("<div class='' style='padding:20px;background-color:#B0E7A7;color:#FFFFFF;text-align:center;width:calc(100% - 40px);' onclick='compareRedirect()'>Compare</div>");
+				$("#save-dialog").append("<div class='' style='padding:20px;background-color:#FFB8B8;color:#FFFFFF;text-align:center;width:calc(100% - 40px);' onclick='closeSD()'>Close Window</div>");
+			}
+			
+			function compareSet(){
+				if(selectedData==[]){
+					return false;
+				}
+				var accessCode=$("#access-code").val();
+				closeSD();
+				$("#save-dialog").css("display","block");
+				$("#save-button").css("display","none");
+				$("#sd-back").css("display","block");
+				$("#sd-container").html("<h1>Saving Data...</h1>");
+				console.log("api?request=ADD_DATA&json=" + JSON.stringify(selectedData));
+				$.ajax({
+					url: "api?request=ADD_DATA&json=" + JSON.stringify(selectedData),
+					success: function(result) {
+						console.log(JSON.parse(result));
+						var res=JSON.parse(result);
+						$("#sd-container").html("<h1>Compare Data</h1><p>Enter an access code:</p><input type='text' id='access-code' class='fill-wb' value='"+accessCode+"'/><p>Enter another access code:</p><input type='text' id='access-code-2' class='fill-wb' value='"+res["data"][0]["access_id"]+"'/><br/>");
+						$("#save-dialog").append("<div class='' style='padding:20px;background-color:#B0E7A7;color:#FFFFFF;text-align:center;width:calc(100% - 40px);' onclick='compareRedirect()'>Compare</div>");
+						$("#save-dialog").append("<div class='' style='padding:20px;background-color:#FFB8B8;color:#FFFFFF;text-align:center;width:calc(100% - 40px);' onclick='closeSD()'>Close Window</div>");
+					},
+					error: function(xhr, status, error) {
+						$("#sd-container").html("<h1>Error Saving Data!</h1>");
+						$("#save-dialog").append("<div class='' style='padding:20px;background-color:#FFB8B8;color:#FFFFFF;text-align:center;width:calc(100% - 40px);' onclick='closeSD()'>Close Window</div>");
+					}
+				});
+			}
+			function compareRedirect(){
+				redirectTo("http://arctro.com/impact/c/?id1="+$("#access-code-2").val()+"&id2="+$("#access-code").val());
+			}
 		</script>
 	</head>
 	<body>
@@ -663,9 +701,10 @@
 				<ul class="center-content-h menu" style="font-size:25px;height:99%;">
 					<li style="margin-left:0px" onclick="">Home</li>
 					<li onclick="redirectTo('http://arctro.com/impact/team/#about')">About</li>
-					<li onclick="redirectTo('http://arctro.com/impact/team/')">Team</li>
+					<li onclick="redirectTo('http://arctro.com/impact/list/')">List</li>
 					<li onclick="scrollTo('#calculate')">Calculate</li>
 					<li onclick="scrollTo('#results')">Results</li>
+					<li onclick="compareWindow()">Compare</li>
 					<li onclick="saveData()" id="save-button">Save</li>
 				</ul>
 			</div>
@@ -674,7 +713,7 @@
 			<h1>Calculate</h1>
 			<div id="selector">
 				<select id="state-select" class="fill-wb" onchange="toggleVictoria()">
-					<option value="">Select</option>
+					<option value="">Select a State</option>
 					<option value="ACT">Australian Capital Territory</option>
 					<option value="NSW">New South Wales</option>
 					<option value="NT">Northern Territory</option>
@@ -685,7 +724,7 @@
 					<option value="VC">Victoria</option>
 				</select>
 				<select id="category" class="fill-wb" onchange="selectcategory()">
-					<option value="">Select</option>
+					<option value="">Select a Device Category</option>
 					<option value="ac">Air Conditioners</option>
 					<option value="cd">Clothes Dryers</option>
 					<option value="cw">Clothes Washers</option>
@@ -701,10 +740,10 @@
 					
 				</select>
 				<p id="hours-label" style="display:none;">Hours Use Daily:</p>
-				<input type="number" class="fill-wb" id="hours"  style="display:none;"/>
+				<input type="number" class="fill-wb" id="hours"  style="display:none;" min="0" max="24"/>
 				<input type="button" class="fill-wb" value="Add" id="add"  style="display:none;" onclick="submitSelection()"/>
 			</div>
-			<table class="outline fill-wb" id="data-table">
+			<table class="outline fill-wb table-style" id="data-table">
 				<tr class="t-ac">
 					<td><b>Enabled</b></td>
 					<td><b>Category</b></td>
@@ -751,7 +790,7 @@
 			</table>
 			<table style="width:100%;">
 				<tr colspan="2">
-					<h2>Comparison to average carbon emissions</h2>
+					<h2>Comparison to average carbon emissions (Percentage Difference)</h2>
 				</tr>
 				<tr>
 					<td class="fill-wh">
@@ -796,7 +835,7 @@
 								</td>
 								<td valign="top">
 									This graph shows the predicted running cost of your devices compared to households using the most energy efficient devices as suggested in the table below.<br/>
-									<table style="" class="outline fill-wb">
+									<table style="" class="outline fill-wb table-style">
 										<tr style="font-weight:bold">
 											<td>Category</td>
 											<td>Brand</td>

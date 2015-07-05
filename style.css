@@ -192,7 +192,7 @@ a{
    border: 1px solid #ccc;
 }
 
-.outline{
+/*.outline{
 	border:1px #000000 solid;
 	border-collapse:collapse;
 }
@@ -203,7 +203,7 @@ a{
 .outline td{
 	border:1px #000000 solid;
 	border-collapse:collapse;
-}
+}*/
 
 .t-ac{
 	text-align:center;
@@ -214,4 +214,22 @@ a{
 }
 #data-table{
 	margin-top:10px;
+}
+
+.table-style{
+	text-align:center;
+}
+.table-style tr:nth-child(odd) {
+	background-color: #FFFFFF;
+}
+.table-style tr:nth-child(even){
+	background-color: #F2F2F2;
+}
+.table-style tr:first-child { 
+	background-color: #6BB993;
+	color:#FFFFFF;
+}
+.table-style{
+	border:0px black solid;
+	border-collapse:collapse
 }

@@ -579,7 +579,7 @@
 		</div>
 		<div class="content shadow-card" id="calculate">
 			<h1>Calculate</h1>
-			<table class="outline fill-wb" id="data-table">
+			<table class="outline fill-wb table-style" id="data-table">
 				<tr class="t-ac">
 					<td><b>Enabled</b></td>
 					<td><b>Category</b></td>
@@ -626,7 +626,7 @@
 			</table>
 			<table style="width:100%;">
 				<tr colspan="2">
-					<h2>Comparison to average carbon emissions</h2>
+					<h2>Comparison to average carbon emissions (Percentage Difference)</h2>
 				</tr>
 				<tr>
 					<td class="fill-wh">
@@ -671,7 +671,7 @@
 								</td>
 								<td valign="top">
 									This graph shows the predicted running cost of your devices compared to households using the most energy efficient devices as suggested in the table below.<br/>
-									<table style="" class="outline fill-wb">
+									<table style="" class="outline fill-wb table-style">
 										<tr style="font-weight:bold">
 											<td>Category</td>
 											<td>Brand</td>

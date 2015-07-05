@@ -692,7 +692,7 @@
 		</div>
 		<div class="content shadow-card" id="calculate">
 			<h1>Calculate</h1>
-			<table class="outline fill-wb" id="data-table1">
+			<table class="outline fill-wb table-style" id="data-table1">
 				<tr>
 					<td colspan="8">
 						Results 1
@@ -710,7 +710,7 @@
 				</tr>
 			</table>
 			<br/>
-			<table class="outline fill-wb" id="data-table2">
+			<table class="outline fill-wb table-style" id="data-table2">
 				<tr>
 					<td colspan="8">
 						Results 2
