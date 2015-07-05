@@ -26,7 +26,7 @@
 					id:"_id",
 					model:"Model No",
 					brand:"Brand",
-					rating:"star_rating",
+					rating:"New Star",
 					power:"New CEC",
 					kwh:true,
 					color:"9AD6B9",
@@ -89,6 +89,53 @@
 				}
 			};
 			
+			var optimal={
+				ac:{
+					model:"KFR-23GW",
+					brand:"ADVANCE",
+					rating:"5",
+					power:"1.03"
+				},
+				cd:{
+					model:"WT 2780",
+					brand:"MIELE",
+					rating:"4.0",
+					power:"0.21"
+				},
+				dw:{
+					model:"DD60*7",
+					brand:"FISHER & PAYKEL",
+					rating:"3.5",
+					power:"0.36"
+				},
+				cw:{
+					model:"L50600",
+					brand:"AEG",
+					rating:"4.0",
+					power:"0.45"
+				},
+				ff:{
+					model:"GC-049SW",
+					brand:"LG",
+					rating:"3.5",
+					power:"130"
+				},
+				tv:{
+					model:"HG40AC460KW",
+					brand:"SAMSUNG",
+					rating:"5",
+					power:"0.43"
+				},
+				mo:{
+					model:"E221i",
+					brand:"HP",
+					rating:"4.0",
+					power:"0.0331"
+				}
+			};
+			
+			var radarActual={ac:getCE(7,false), cd:getCE(1,false), cw:getCE(1,false), dw:getCE(1,false), ff:getCE(79,false), mo:getCE(3,false), tv:getCE(3,false)};
+			
 			var radar = {
 			    labels: ["Air Conditioner", "Clothes Dryers", "Clothes Washers", "Dishwashers", "Fridges/Freezers", "Monitors", "Television"],
 			    datasets: [
@@ -110,26 +157,41 @@
 			            pointStrokeColor: "#fff",
 			            pointHighlightFill: "#fff",
 			            pointHighlightStroke: "rgba(151,187,205,1)",
-			            data: [getCE(1.014,false), getCE(0.28099465), getCE(0.28099465), getCE(0.32956932), getCE(6.1834559), getCE(3.32802229), getCE(3.3646899)]
+			            data: [100,100,100,100,100,100,100]
 			        }
 			    ]
 			};
+			
+			var energyPredictions = [70.2, 67.2, 67.1, 66.4, 65.7, 65.2, 64.3, 64.3, 63.2, 63.3, 63.9, 62.6, 63.3, 63.6, 64.3, 65.4, 65.5, 64.7, 66, 66.4, 67.8, 68.1];
 			
 			var lineEnergy = {
 			    labels: ["2015", "2016", "2017", "2018", "2019", "2020", "2021", "2022", "2023", "2024", "2025", "2026", "2027", "2028", "2029", "2030", "2031", "2032", "2033", "2034", "2035"],
 			    datasets: [
 			        {
-			            label: "Energy Price (cents)",
+			            label: "Daily payments with current setup (cents)",
 			            fillColor: "rgba(199,221,232,0.2)",
 			            strokeColor: "#97BBCD",
 			            pointColor: "#97BBCD",
 			            pointStrokeColor: "#fff",
 			            pointHighlightFill: "#fff",
 			            pointHighlightStroke: "rgba(220,220,220,1)",
-			            data: [205, 197, 196, 194, 192, 192, 188, 188, 186, 185, 186, 183, 185, 186, 188, 191, 190, 189, 193, 194, 198, 199]
+			            data: [70.2, 67.2, 67.1, 66.4, 65.7, 65.2, 64.3, 64.3, 63.2, 63.3, 63.9, 62.6, 63.3, 63.6, 64.3, 65.4, 65.5, 64.7, 66, 66.4, 67.8, 68.1]
+			        },
+			        {
+			            label: "Daily payments with recommended setup (cents)",
+			            fillColor: "rgba(200,236,219,0.2)",
+			            strokeColor: "#9AD6B9",
+			            pointColor: "#9AD6B9",
+			            pointStrokeColor: "#fff",
+			            pointHighlightFill: "#fff",
+			            pointHighlightStroke: "#9AD6B9",
+			            data: [70.2, 67.2, 67.1, 66.4, 65.7, 65.2, 64.3, 64.3, 63.2, 63.3, 63.9, 62.6, 63.3, 63.6, 64.3, 65.4, 65.5, 64.7, 66, 66.4, 67.8, 68.1]
 			        }
 			    ]
 			};
+			
+			var piedata=[];
+			//2.9285714286
 			
 			var pieUseageMakeup=[]
 			
@@ -142,6 +204,9 @@
 			
 			var selectedData=[];
 			
+			var compareRadar;
+			var comparePie;
+			var compareLine;
 			
 			function getBrands(data,category){
 				var results=[];
@@ -289,10 +354,13 @@
 				$('.s-half').css({'height':(cw/2)+'px'});
 				
 				var ctx = document.getElementById("radar-averagecompare").getContext("2d");
-				var myRadarChart = new Chart(ctx).Radar(radar);
+				compareRadar = new Chart(ctx).Radar(radar);
 				
 				var ctx = document.getElementById("line-price").getContext("2d");
-				var myLineChart = new Chart(ctx).Line(lineEnergy);
+				compareLine = new Chart(ctx).Line(lineEnergy);
+				
+				var ctx = document.getElementById("pie-useagemakeup").getContext("2d");
+				comparePie = new Chart(ctx).Pie(piedata);
 				//var myBarChart = new Chart(ctx).Bar(bar);
 			});
 			
@@ -303,9 +371,13 @@
 					cg=$("#category").val();
 					if(data[cg].length<1){
 						console.log(cg);
+						$("#save-dialog").css("display","block");
+						$("#sd-back").css("display","block");
+						$("#sd-container").html("<h1>Loading...</h1>");
 						$.ajax({
 						  	url: getDataName(cg,"data"),
 						    success: function(result) {
+						    	closeSD();
 								data[cg]=eval(result);
 								console.log(data);
 							
@@ -319,6 +391,7 @@
 								}
 							},
 							error: function(xhr, status, error) {
+								$("#sd-back").css("display","block");
 								$("#save-dialog").css("display","block");
 								$("#sd-container").html("<h1>Error Loading Data!</h1>");
 								$("#save-dialog").append("<div class='' style='padding:20px;background-color:#FFB8B8;color:#FFFFFF;text-align:center;width:calc(100% - 40px);' onclick='closeSD()'>Close Window</div>");
@@ -328,7 +401,7 @@
 						var brands=getBrands(data,cg);
 						console.log(brands);
 						
-						$("#brand").append("<option value=''>None</option>");
+						$("#brand").append("<option value=''>Select</option>");
 						for(var i=0;i<brands.length;i++){
 							$("#brand").append("<option value='"+brands[i]+"'>"+titleString(brands[i])+"</option>");
 							$("#brand").css("display","block")
@@ -344,7 +417,7 @@
 					console.log(br);
 					var models=getProducts(data,br);
 					
-					$("#model").append("<option value=''>None</option>");
+					$("#model").append("<option value=''>Select</option>");
 					for(var i=0;i<models.length;i++){
 						$("#model").append("<option value='"+models[i][getDataName(cg,"model")]+"'>"+titleString(models[i][getDataName(cg,"model")])+"</option>");
 						$("#model").css("display","block")
@@ -389,7 +462,7 @@
 				clearSelection(2);
 				$("#category").val('');
 				
-				$("#data-table").append("<tr><td><input type='checkbox' checked onchange='toggleData(\""+did+"\")'/></td><td>"+cg+"</td><td>"+titleString(moData[0][getDataName(cg,"brand")])+"</td><td>"+moData[0][getDataName(cg,"model")]+"</td><td>"+generateStars(moData[0][getDataName(cg,"rating")],5,5,20)+"</td><td>"+Math.round(((key[cg]['kwh']) ? kwhToKw(moData[0][getDataName(cg,"power")], 365) : moData[0][getDataName(cg,"power")])*$("#hours").val())+"</td><td>"+Math.round(getCE(((key[cg]['kwh']) ? kwhToKw(moData[0][getDataName(cg,"power")], 365) : moData[0][getDataName(cg,"power")])*$("#hours").val()))+"</td><td>"+Math.round((((key[cg]['kwh']) ? kwhToKw(moData[0][getDataName(cg,"power")], 365) : moData[0][getDataName(cg,"power")]))*0.76*$("#hours").val())+"</td></tr>");
+				$("#data-table").append("<tr><td><input type='checkbox' checked onchange='toggleData(\""+did+"\")'/></td><td>"+cgToCatagory(cg)+"</td><td>"+titleString(moData[0][getDataName(cg,"brand")])+"</td><td>"+moData[0][getDataName(cg,"model")]+"</td><td>"+generateStars(moData[0][getDataName(cg,"rating")],5,5,20)+"</td><td>"+Math.round(((key[cg]['kwh']) ? kwhToKw(moData[0][getDataName(cg,"power")], 365) : moData[0][getDataName(cg,"power")])*$("#hours").val())+"</td><td>"+Math.round(getCE(((key[cg]['kwh']) ? kwhToKw(moData[0][getDataName(cg,"power")], 365) : moData[0][getDataName(cg,"power")])*$("#hours").val()))+"</td><td>"+Math.round((((key[cg]['kwh']) ? kwhToKw(moData[0][getDataName(cg,"power")], 365) : moData[0][getDataName(cg,"power")]))*0.76*$("#hours").val())+"</td></tr>");
 				
 				generateGraphs();
 			}
@@ -407,8 +480,10 @@
 				    	});
 					}
 				}
+				$("#pie-useagemakeup").html("");
 				var ctx = document.getElementById("pie-useagemakeup").getContext("2d");
-				var myNewChart = new Chart(ctx).Pie(piedata);
+				ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+				comparePie = new Chart(ctx).Pie(piedata);
 				
 				var cgCount={
 					ac:0,
@@ -424,19 +499,57 @@
 						cgCount[sortedSelectedData[i]["category"]]+=parseFloat(sortedSelectedData[i]["power"])*sortedSelectedData[i]["time"];
 					}
 				}
-				console.log(cgCount);
-				radar["datasets"][0]["data"][0]=getCE(cgCount["ac"]);
-				radar["datasets"][0]["data"][1]=getCE(cgCount["cd"]);
-				radar["datasets"][0]["data"][2]=getCE(cgCount["cw"]);
-				radar["datasets"][0]["data"][3]=getCE(cgCount["dw"]);
-				radar["datasets"][0]["data"][4]=getCE(cgCount["ff"]);
-				radar["datasets"][0]["data"][5]=getCE(cgCount["mo"]);
-				radar["datasets"][0]["data"][6]=getCE(cgCount["tv"]);
-				console.log(radar);
+				radar["datasets"][0]["data"][0]=(getCE(cgCount["ac"])/radarActual["ac"])*100;
+				radar["datasets"][0]["data"][1]=(getCE(cgCount["cd"])/radarActual["cd"])*100;
+				radar["datasets"][0]["data"][2]=(getCE(cgCount["cw"])/radarActual["cw"])*100;
+				radar["datasets"][0]["data"][3]=(getCE(cgCount["dw"])/radarActual["dw"])*100;
+				radar["datasets"][0]["data"][4]=(getCE(cgCount["ff"])/radarActual["ff"])*100;
+				radar["datasets"][0]["data"][5]=(getCE(cgCount["mo"])/radarActual["mo"])*100;
+				radar["datasets"][0]["data"][6]=(getCE(cgCount["tv"])/radarActual["tv"])*100;
 				
-				
+				$("#radar-averagecompare").html("");
 				var ctx = document.getElementById("radar-averagecompare").getContext("2d");
-				var RadarChart = new Chart(ctx).Radar(radar);
+				ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+				compareRadar = new Chart(ctx).Radar(radar);
+				
+				var total=0;
+				
+				for(var i=0;i<sortedSelectedData.length;i++){
+					total+=parseFloat(sortedSelectedData[i]["power"])*sortedSelectedData[i]["time"];
+				}
+				var currentEnergyPredictions=energyPredictions.slice();
+				for(var i=0;i<currentEnergyPredictions.length;i++){
+					currentEnergyPredictions[i]=currentEnergyPredictions[i]*total;
+				}
+				
+				var energyCount={
+					ac:0,
+					cd:0,
+					cw:0,
+					dw:0,
+					ff:0,
+					mo:0,
+					tv:0
+				}
+				for(var i=0;i<sortedSelectedData.length;i++){
+					energyCount[selectedData[i]["category"]]++;
+				}
+				var totalOptimal=0;
+				var optimalEnergyPredictions=energyPredictions.slice();
+				for(var i=0;i<Object.keys(optimal).length;i++){
+					totalOptimal+=energyCount[Object.keys(energyCount)[i]]*optimal[Object.keys(energyCount)[i]]['power'];
+				}
+				for(var i=0;i<optimalEnergyPredictions.length;i++){
+					optimalEnergyPredictions[i]=optimalEnergyPredictions[i]*totalOptimal;
+				}
+				
+				lineEnergy['datasets'][0]['data']=currentEnergyPredictions;
+				lineEnergy['datasets'][1]['data']=optimalEnergyPredictions;
+				
+				$("#line-price").html("");
+				var ctx = document.getElementById("line-price").getContext("2d");
+				ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+				compareLine = new Chart(ctx).Line(lineEnergy);
 			}
 			
 			function toggleData(id){
@@ -461,8 +574,12 @@
 			}
 			
 			function saveData(){
+				if(selectedData==[]){
+					return;
+				}
 				$("#save-dialog").css("display","block");
 				$("#save-button").css("display","none");
+				$("#sd-back").css("display","block");
 				$("#sd-container").html("<h1>Saving Data...</h1>");
 				console.log("api?request=ADD_DATA&json=" + JSON.stringify(selectedData));
 				$.ajax({
@@ -471,8 +588,8 @@
 						console.log(JSON.parse(result));
 						var res=JSON.parse(result);
 						$("#sd-container").html("<h1>Data Saved!</h1><p>Link:</p><input type='text' class='fill-wb' value='http://arctro.com/impact/s/"+res["data"][0]["access_id"]+"'/><p>Delete Code:</p><input type='text' class='fill-wb' value='"+res["data"][0]["delete_code"]+"'/></br>");
-						$("#save-dialog").append("<div class='' style='padding:20px;background-color:#FFB8B8;color:#FFFFFF;text-align:center;width:calc(100% - 40px);' onclick='closeSD()'>Close Window</div>");
 						$("#save-dialog").append("<div class='' style='padding:20px;background-color:#B0E7A7;color:#FFFFFF;text-align:center;width:calc(100% - 40px);' onclick='redirectTo(\"http://arctro.com/impact/s/"+res["data"][0]["access_id"]+"\")'>Go to page</div>");
+						$("#save-dialog").append("<div class='' style='padding:20px;background-color:#FFB8B8;color:#FFFFFF;text-align:center;width:calc(100% - 40px);' onclick='closeSD()'>Close Window</div>");
 					},
 					error: function(xhr, status, error) {
 						$("#sd-container").html("<h1>Error Saving Data!</h1>");
@@ -483,10 +600,36 @@
 			
 			function closeSD(){
 				$("#save-dialog").html("<div id='sd-container' class='' style='padding:10px;width:calc(100% - 20px)'></div>");
-				$("#save-dialog").css("display","none")
+				$("#save-dialog").css("display","none");
+				$("#sd-back").css("display","none");
 			}
 			function redirectTo(url){
 				window.location=url;
+			}
+			
+			function cgToCatagory(cg){
+				if(cg=="ac"){
+					return "Air Conditioner";
+				}
+				if(cg=="cd"){
+					return "Clothes Dryer";
+				}
+				if(cg=="cw"){
+					return "Clothes Washer";
+				}
+				if(cg=="dw"){
+					return "Dish Washer";
+				}
+				if(cg=="ff"){
+					return "Fridge/Freezer";
+				}
+				if(cg=="mo"){
+					return "Monitor";
+				}
+				if(cg=="tv"){
+					return "Television";
+				}
+				return cg;
 			}
 		</script>
 	</head>
@@ -496,6 +639,7 @@
 				
 			</div>
 		</div>
+		<div id="sd-back" class="fill-wb fill-hb" style="position:fixed;background-color:#151515;opacity:0.5;display:none;z-index:9;" onclick="closeSD()"></div>
 		<div id="header" class="fill-w shadow-menu bc-w center-content-w bg-w" style="">
 			<div class="body-width center-content-w">
 				<img src="resources/impact_logo_horizontal.png" class="" alt="logo" style="height:100px;margin:10px;"/>
@@ -512,14 +656,14 @@
 		</div>
 		<div class="content shadow-card" id="about">
 			<h1>About</h1>
-			<p>Impact helps measure your carbon emmissions and your power costs. Impact analyzes and clearly displays the results.</p>
+			<p>Impact helps measure, analyse and compare carbon emmissions for household devices.</p>
 		</div>
 		<div class="content shadow-card" id="calculate">
 			<h1>Calculate</h1>
-			I live in Victoria: <input type="checkbox" onchange="toggleVictoria()"/>
+			Tick if you live in Victoria: <input type="checkbox" onchange="toggleVictoria()"/>
 			<div id="selector">
 				<select id="category" class="fill-wb" onchange="selectcategory()">
-					<option value="">None</option>
+					<option value="">Select</option>
 					<option value="ac">Air Conditioners</option>
 					<option value="cd">Clothes Dryers</option>
 					<option value="cw">Clothes Washers</option>
@@ -544,7 +688,7 @@
 					<td><b>Category</b></td>
 					<td><b>Brand Name</b></td>
 					<td><b>Model Number</b></td>
-					<td><b>Star Rating</b></td>
+					<td style="min-width:140px"><b>Star Rating</b></td>
 					<td><b>Daily Power Useage (KWH)</b></td>
 					<td><b>Daily Carbon Emissions (g)</td>
 					<td><b>Daily Cost (AUD Cents)</td>
@@ -552,7 +696,7 @@
 			</table>
 		</div>
 		<div class="content shadow-card clearfix" style="text-align:center;" id="results">
-			<h1>Results</h1>
+			<h1 style="text-align:left;">Results</h1>
 			<table style="width:100%;">
 				<tr colspan="2">
 					<h2>Breakdown of energy usage</h2>
@@ -562,7 +706,24 @@
 						<canvas id="pie-useagemakeup" class="s-half fill-wb"></canvas>
 					</td>
 					<td valign="top">
-						This graph represents the relative amount of carbon emissions that each device produces in a day. This data shows you the path forward to cutting down your carbon emissions, by either reducing use of a certain item, or buying a better rated item.
+						<table>
+							<tr>
+								<td valign="top" style="width:150px;">
+									<table>
+										<tr><td><div style="display:inline-block;background-color:#97BBCD;width:20px;height:20px;"></div></td><td> Air Conditioner</td></tr>
+										<tr><td><div style="display:inline-block;background-color:#9AD6B9;width:20px;height:20px;"></div></td><td> Clothers Dryer</td></tr>
+										<tr><td><div style="display:inline-block;background-color:#FFEDB8;width:20px;height:20px;"></div></td><td> Clothers Washer</td></tr>
+										<tr><td><div style="display:inline-block;background-color:#DAF4B1;width:20px;height:20px;"></div></td><td> Dishwasher</td></tr>
+										<tr><td><div style="display:inline-block;background-color:#FFD1B8;width:20px;height:20px;"></div></td><td> Fridge/Freezer</td></tr>
+										<tr><td><div style="display:inline-block;background-color:#EAA9C5;width:20px;height:20px;"></div></td><td> Television</td></tr>
+										<tr><td><div style="display:inline-block;background-color:#C898D0;width:20px;height:20px;"></div></td><td> Monitor</td></tr>
+									</table>
+								</td>
+								<td valign="top">
+									This graph represents the relative amount of carbon emissions that your devices produce in a day. This graph shows you how to cut your carbon emissions, by either reducing use of a particular device, or replacing it with a better rated device.
+								</td>
+							</tr>
+						</table>
 					</td>
 				</tr>
 			</table>
@@ -575,23 +736,139 @@
 						<canvas id="radar-averagecompare" class="s-half fill-wb"></canvas>
 					</td>
 					<td valign="top">
-						This graph represents the relative amount of carbon emissions you release compared to the average family. This data shows where abnormalities in energy usage exists, and therefore helps cut down on carbon emissions.
-						<br>
-						<br>
-						<span style="font-size:10px">footnote: This usage and average was calculated using the <a href="https://data.gov.au/dataset/sample-household-electricity-time-of-use-data">average energy use data</a> combined with average device usage data and <a href="https://data.gov.au/dataset/energy-rating-for-household-appliances">the average energy usage by rated devices</a>.</span>
+						<table>
+							<tr>
+								<td valign="top" style="width:150px;">
+									<table>
+										<tr><td><div style="display:inline-block;background-color:#97BBCD;width:20px;height:20px;"></div></td><td> Average Carbon Emissions</td></tr>
+										<tr><td><div style="display:inline-block;background-color:#9AD6B9;width:20px;height:20px;"></div></td><td> Your Carbon Emissions</td></tr>
+									</table>
+								</td>
+								<td valign="top">
+									This graph represents your carbon footprint compared to the average household carbon footprint. This graph identifies areas where you differ in energy usage and where further reductions in carbon emissions could be made.
+									<br>
+									<br>
+									<span style="font-size:10px">footnote: Usage and average was calculated using the <a href="https://data.gov.au/dataset/sample-household-electricity-time-of-use-data">average energy use data</a> combined with average device usage data and <a href="https://data.gov.au/dataset/energy-rating-for-household-appliances">the average energy usage by rated devices</a>.</span>
+								</td>
+							</tr>
+						</table>
 					</td>
 				</tr>
 			</table>
 			<table style="width:100%;">
 				<tr colspan="2">
-					<h2>Energy price predictions (Cents per KWH)</h2>
+					<h2>Energy price predictions (Cents per Day)</h2>
 				</tr>
 				<tr>
 					<td class="fill-wh">
 						<canvas id="line-price" class="s-half fill-wb"></canvas>
 					</td>
 					<td valign="top">
-						This graph shows predicted energy costs in cents per KWH. This is an indicator of how much your devices will cost in the future (cost is in cents per kwh, not your total cost).
+						<table>
+							<tr>
+								<td valign="top" style="width:150px;">
+									<table>
+										<tr><td><div style="display:inline-block;background-color:#97BBCD;width:20px;height:20px;"></div></td><td> Optimum predicted daily cost</td></tr>
+										<tr><td><div style="display:inline-block;background-color:#9AD6B9;width:20px;height:20px;"></div></td><td> Your predicted daily cost</td></tr>
+									</table>
+								</td>
+								<td valign="top">
+									This graph shows the predicted running cost of your devices compared to households using the most energy efficient devices.<br/>
+									<table style="" class="outline fill-wb">
+										<tr style="font-weight:bold">
+											<td>Category</td>
+											<td>Brand</td>
+											<td>Model</td>
+											<td>Rating</td>
+										</tr>
+										<tr>
+											<td>Air Conditioner</td>
+											<td>Advance</td>
+											<td>KFR-23GW</td>
+											<td>
+												<img src='http://arctro.com/toiletsact/resources/full.png' style='float:left;height:20px;' align='middle'/>
+												<img src='http://arctro.com/toiletsact/resources/full.png' style='float:left;height:20px;' align='middle'/>
+												<img src='http://arctro.com/toiletsact/resources/full.png' style='float:left;height:20px;' align='middle'/>
+												<img src='http://arctro.com/toiletsact/resources/full.png' style='float:left;height:20px;' align='middle'/>
+												<img src='http://arctro.com/toiletsact/resources/full.png' style='float:left;height:20px;' align='middle'/>
+											</td>
+										</tr>
+										<tr>
+											<td>Clothes Dryer</td>
+											<td>Miele</td>
+											<td>WT 2780</td>
+											<td>
+												<img src='http://arctro.com/toiletsact/resources/full.png' style='float:left;height:20px;' align='middle'/>
+												<img src='http://arctro.com/toiletsact/resources/full.png' style='float:left;height:20px;' align='middle'/>
+												<img src='http://arctro.com/toiletsact/resources/full.png' style='float:left;height:20px;' align='middle'/>
+												<img src='http://arctro.com/toiletsact/resources/full.png' style='float:left;height:20px;' align='middle'/>
+												<img src='http://arctro.com/toiletsact/resources/empty.png' style='float:left;height:20px;' align='middle'/>
+											</td>
+										</tr>
+										<tr>
+											<td>Dish Washer</td>
+											<td>Fisher & Paykel</td>
+											<td>DD60*7</td>
+											<td>
+												<img src='http://arctro.com/toiletsact/resources/full.png' style='float:left;height:20px;' align='middle'/>
+												<img src='http://arctro.com/toiletsact/resources/full.png' style='float:left;height:20px;' align='middle'/>
+												<img src='http://arctro.com/toiletsact/resources/full.png' style='float:left;height:20px;' align='middle'/>
+												<img src='http://arctro.com/toiletsact/resources/half.png' style='float:left;height:20px;' align='middle'/>
+												<img src='http://arctro.com/toiletsact/resources/empty.png' style='float:left;height:20px;' align='middle'/>
+											</td>
+										</tr>
+										<tr>
+											<td>Clothes Washer</td>
+											<td>AEG</td>
+											<td>L50600</td>
+											<td>
+												<img src='http://arctro.com/toiletsact/resources/full.png' style='float:left;height:20px;' align='middle'/>
+												<img src='http://arctro.com/toiletsact/resources/full.png' style='float:left;height:20px;' align='middle'/>
+												<img src='http://arctro.com/toiletsact/resources/full.png' style='float:left;height:20px;' align='middle'/>
+												<img src='http://arctro.com/toiletsact/resources/full.png' style='float:left;height:20px;' align='middle'/>
+												<img src='http://arctro.com/toiletsact/resources/empty.png' style='float:left;height:20px;' align='middle'/>
+											</td>
+										</tr>
+										<tr>
+											<td>Fridge/Freezer</td>
+											<td>LG</td>
+											<td>GC-049SW</td>
+											<td>
+												<img src='http://arctro.com/toiletsact/resources/full.png' style='float:left;height:20px;' align='middle'/>
+												<img src='http://arctro.com/toiletsact/resources/full.png' style='float:left;height:20px;' align='middle'/>
+												<img src='http://arctro.com/toiletsact/resources/full.png' style='float:left;height:20px;' align='middle'/>
+												<img src='http://arctro.com/toiletsact/resources/half.png' style='float:left;height:20px;' align='middle'/>
+												<img src='http://arctro.com/toiletsact/resources/empty.png' style='float:left;height:20px;' align='middle'/>
+											</td>
+										</tr>
+										<tr>
+											<td>Television</td>
+											<td>Samsung</td>
+											<td>HG40AC460KW</td>
+											<td>
+												<img src='http://arctro.com/toiletsact/resources/full.png' style='float:left;height:20px;' align='middle'/>
+												<img src='http://arctro.com/toiletsact/resources/full.png' style='float:left;height:20px;' align='middle'/>
+												<img src='http://arctro.com/toiletsact/resources/full.png' style='float:left;height:20px;' align='middle'/>
+												<img src='http://arctro.com/toiletsact/resources/full.png' style='float:left;height:20px;' align='middle'/>
+												<img src='http://arctro.com/toiletsact/resources/full.png' style='float:left;height:20px;' align='middle'/>
+											</td>
+										</tr>
+										<tr>
+											<td>Monitor</td>
+											<td>HP</td>
+											<td>E221i</td>
+											<td>
+												<img src='http://arctro.com/toiletsact/resources/full.png' style='float:left;height:20px;' align='middle'/>
+												<img src='http://arctro.com/toiletsact/resources/full.png' style='float:left;height:20px;' align='middle'/>
+												<img src='http://arctro.com/toiletsact/resources/full.png' style='float:left;height:20px;' align='middle'/>
+												<img src='http://arctro.com/toiletsact/resources/full.png' style='float:left;height:20px;' align='middle'/>
+												<img src='http://arctro.com/toiletsact/resources/empty.png' style='float:left;height:20px;' align='middle'/>
+											</td>
+										</tr>
+									</table>
+								</td>
+							</tr>
+						</table>
 					</td>
 				</tr>
 			</table>

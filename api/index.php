@@ -52,6 +52,15 @@
 
 	}
 
+	if($request == 'UPDATE_DATA') {
+		$return = array('error'=>'', 'data'=>[]);
+		$header_data = load_header_data($link, escape_get_post($link, "access_id"));
+		$id = $header_data[0]['id'];
+		delete_data($link, $id);
+		array_push($return['data'], $header_data);
+		echo json_encode($return);
+	}
+
 	function load_header_for_deletion($link, $delete_code){
 		$sql = "SELECT * FROM `impact`.`header_data` WHERE `delete_code` LIKE '$delete_code'";
 		$result = $link->query($sql);
