@@ -1,7 +1,4 @@
 <?php
-	error_reporting(-1);
-	#ini_set('display_errors', 'On');
-
 	$mysql_host = ""; //Withheld
 	$mysql_database = ""; //Withheld
 	$mysql_user = ""; //Withheld
