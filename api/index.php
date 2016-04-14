@@ -11,7 +11,6 @@
 	$json = safe_get_post("json");
 	$access_id = escape_get_post($link, "access_id");
 	$delete_code = escape_get_post($link, "delete_code");
-	//echo $json;
 	if(string_empty($request)){
 		end_func("Empty request");
 	}
@@ -68,7 +67,6 @@
 		return $result;
 	}
 
-	#Working :D
 	function add_data_header($link){
 		$access_id=gen_uuid();
 		$delete_code = gen_uuid();
@@ -77,7 +75,6 @@
 		return array("id"=>mysqli_insert_id($link), "access_id"=>$access_id, "delete_code"=>$delete_code);
 	}
 
-	#Working :D
 	function load_header_data($link, $access_id) {
 		$sql = "SELECT * FROM `impact`.`header_data` WHERE `access_id` LIKE '$access_id'";
 		$result =  $link->query($sql);
@@ -88,7 +85,6 @@
 		return $return;
 	}
 
-	#Working :D
 	function delete_header_data($link, $delete_id) {
 		$sql = "DELETE FROM `impact`.`header_data` WHERE `delete_code` LIKE '$delete_id'";
 		$link->query($sql);
@@ -100,7 +96,6 @@
 		$link->query($sql);
 	}
 
-	#Working :D
 	function load_data($link, $header_id) {
 		$sql = "SELECT * FROM `impact`.`data` WHERE `header_id` = $header_id";
 		$result = $link->query($sql);
@@ -114,7 +109,6 @@
 		return $return;
 	}
 
-	#Working :D
 	function add_data($link, $header_id, $json) {
 		$decoded = json_decode($json);
 		$sql = "INSERT INTO `impact`.`data` (`id`, `header_id`, `unique_id`, `category`, `model`, `brand`, `rating`, `power`, `time`) VALUES";
@@ -129,7 +123,6 @@
 				$sql .=",";
 			}
 		}
-		//echo $sql;
 		$link->query($sql) or die(mysqli_error($link));
 	}
 
